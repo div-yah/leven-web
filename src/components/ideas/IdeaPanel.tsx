@@ -24,7 +24,8 @@ const STATUS_DOT: Record<string, string> = {
 export default function IdeaPanel({ idea, onClose, onUpdated, onDeleted }: Props) {
   const qc = useQueryClient()
   const [editing, setEditing] = useState(false)
-  const color = idea.tags.length > 0 ? tagColor(idea.tags[0].name) : DEFAULT_COLOR
+  const firstTag = idea.tags[0]
+  const color = firstTag ? tagColor(firstTag.name, firstTag.color) : DEFAULT_COLOR
 
   const { data: comments = [], refetch: refetchComments } = useQuery({
     queryKey: ['comments', idea.id],
@@ -74,9 +75,18 @@ export default function IdeaPanel({ idea, onClose, onUpdated, onDeleted }: Props
           {/* Tags */}
           {idea.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-2">
-              {idea.tags.map((tag) => (
-                <span key={tag.id} className="text-xs text-gray-500">#{tag.name}</span>
-              ))}
+              {idea.tags.map((tag) => {
+                const c = tagColor(tag.name, tag.color)
+                return (
+                  <span
+                    key={tag.id}
+                    style={{ backgroundColor: c.labelBg, color: c.label }}
+                    className="text-xs font-medium px-1.5 py-0.5 rounded-md"
+                  >
+                    {tag.name}
+                  </span>
+                )
+              })}
             </div>
           )}
 

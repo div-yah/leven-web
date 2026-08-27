@@ -5,6 +5,7 @@ import { getTags, createTag } from '../../api/tags'
 import { getCategories } from '../../api/categories'
 import { uploadImage } from '../../api/upload'
 import { Idea, IdeaContentType, IdeaStatus, Tag } from '../../types'
+import { randomPaletteKey } from '../ui/tagColors'
 
 interface Props {
   idea: Idea
@@ -49,7 +50,7 @@ export default function EditIdeaModal({ idea, onClose, onUpdated }: Props) {
   })
 
   const addTag = useMutation({
-    mutationFn: () => createTag({ name: newTagName.trim() }),
+    mutationFn: () => createTag({ name: newTagName.trim(), color: randomPaletteKey() }),
     onSuccess: (tag: Tag) => {
       qc.invalidateQueries({ queryKey: ['tags'] })
       setSelectedTagIds((ids) => [...ids, tag.id])
