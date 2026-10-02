@@ -5,6 +5,7 @@ import { getComments } from '../../api/comments'
 import { deleteIdea, updateIdea } from '../../api/ideas'
 import { format } from 'date-fns'
 import { tagColor, DEFAULT_COLOR } from '../ui/tagColors'
+import { resolveAssetUrl } from '../../lib/assetUrl'
 import CommentThread from '../comments/CommentThread'
 import EditIdeaModal from './EditIdeaModal'
 
@@ -102,17 +103,22 @@ export default function IdeaPanel({ idea, onClose, onUpdated, onDeleted }: Props
             <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap mb-5">{idea.content}</p>
           )}
           {idea.content_type === 'link' && idea.link && (
-            <a
-              href={idea.link}
-              target="_blank"
-              rel="noreferrer"
-              className="text-sm text-blue-500 hover:underline break-all mb-5 block"
-            >
-              {idea.link}
-            </a>
+            <>
+              {idea.image_url && (
+                <img src={resolveAssetUrl(idea.image_url)} alt="" className="w-full rounded-xl mb-3 object-cover" />
+              )}
+              <a
+                href={idea.link}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm text-blue-500 hover:underline break-all mb-5 block"
+              >
+                {idea.link}
+              </a>
+            </>
           )}
           {idea.content_type === 'image' && idea.image_url && (
-            <img src={idea.image_url} alt="" className="w-full rounded-xl mb-5 object-cover" />
+            <img src={resolveAssetUrl(idea.image_url)} alt="" className="w-full rounded-xl mb-5 object-cover" />
           )}
 
           {/* Comments */}

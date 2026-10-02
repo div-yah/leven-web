@@ -1,5 +1,6 @@
 import { Idea } from '../../types'
 import { tagColor, DEFAULT_COLOR } from '../ui/tagColors'
+import { resolveAssetUrl } from '../../lib/assetUrl'
 import { format } from 'date-fns'
 
 interface Props {
@@ -26,9 +27,9 @@ export default function StickyCard({ idea, selected, onClick }: Props) {
       {idea.content_type === 'link' && (
         <span className="text-xs text-gray-400">🔗</span>
       )}
-      {idea.content_type === 'image' && idea.image_url && (
+      {(idea.content_type === 'image' || idea.content_type === 'link') && idea.image_url && (
         <img
-          src={idea.image_url}
+          src={resolveAssetUrl(idea.image_url)}
           alt=""
           className="w-full h-16 object-cover rounded-lg mb-1"
         />

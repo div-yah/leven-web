@@ -4,6 +4,7 @@ import { updateIdea } from '../../api/ideas'
 import { getTags, createTag } from '../../api/tags'
 import { getCategories } from '../../api/categories'
 import { uploadImage } from '../../api/upload'
+import { resolveAssetUrl } from '../../lib/assetUrl'
 import { Idea, IdeaContentType, IdeaStatus, Tag } from '../../types'
 import { randomPaletteKey } from '../ui/tagColors'
 
@@ -128,7 +129,7 @@ export default function EditIdeaModal({ idea, onClose, onUpdated }: Props) {
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
             {imageUrl ? (
               <div className="relative">
-                <img src={imageUrl} alt="" className="w-full rounded-xl object-cover max-h-48" />
+                <img src={resolveAssetUrl(imageUrl)} alt="" className="w-full rounded-xl object-cover max-h-48" />
                 <button
                   onClick={() => setImageUrl('')}
                   className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full"

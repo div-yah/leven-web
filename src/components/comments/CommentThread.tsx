@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { Comment } from '../../types'
 import { createComment, deleteComment } from '../../api/comments'
 import { uploadImage } from '../../api/upload'
+import { resolveAssetUrl } from '../../lib/assetUrl'
 import { useStore } from '../../store'
 import { format } from 'date-fns'
 
@@ -76,7 +77,7 @@ export default function CommentThread({ ideaId, comments, onRefetch, parentId, d
               <p className="text-sm text-gray-700 leading-relaxed">{comment.content}</p>
               {comment.image_url && (
                 <img
-                  src={comment.image_url}
+                  src={resolveAssetUrl(comment.image_url)}
                   alt=""
                   className="mt-2 rounded-lg max-h-48 object-cover w-full"
                 />
