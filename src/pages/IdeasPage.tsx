@@ -10,18 +10,34 @@ import FolderCard from '../components/categories/FolderCard'
 import Breadcrumb from '../components/ui/Breadcrumb'
 import NewFolderModal from '../components/categories/NewFolderModal'
 import NewIdeaModal from '../components/ideas/NewIdeaModal'
+import ShareCategoryModal from '../components/categories/ShareCategoryModal'
+
+function findInTree(cats: Category[], id: string): Category | undefined {
+  for (const cat of cats) {
+    if (cat.id === id) return cat
+    const found = findInTree(cat.children, id)
+    if (found) return found
+  }
+  return undefined
+}
 
 export default function IdeasPage() {
-  const { selectedIdea, setSelectedIdea } = useStore()
-  const [currentCategory, setCurrentCategory] = useState<Category | null>(null)
+  const { selectedIdea, setSelectedIdea, user: currentUser } = useStore()
+  const [currentCategoryId, setCurrentCategoryId] = useState<string | null>(null)
   const [breadcrumb, setBreadcrumb] = useState<Category[]>([])
   const [showNewFolder, setShowNewFolder] = useState(false)
   const [showNewIdea, setShowNewIdea] = useState(false)
+  const [showShare, setShowShare] = useState(false)
 
   const { data: allCategories = [], refetch: refetchCats } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
   })
+
+  // Always derive the current category from the freshest query data
+  // (rather than holding a stale snapshot) so things like newly-added
+  // collaborators or subfolders show up immediately after a refetch.
+  const currentCategory = currentCategoryId ? findInTree(allCategories, currentCategoryId) ?? null : null
 
   const { data: ideas = [], refetch: refetchIdeas } = useQuery({
     queryKey: ['ideas', currentCategory?.id ?? 'root'],
@@ -38,18 +54,18 @@ export default function IdeasPage() {
 
   const navigateInto = (cat: Category) => {
     setBreadcrumb((prev) => [...prev, cat])
-    setCurrentCategory(cat)
+    setCurrentCategoryId(cat.id)
     setSelectedIdea(null)
   }
 
   const navigateTo = (index: number) => {
     if (index === -1) {
       setBreadcrumb([])
-      setCurrentCategory(null)
+      setCurrentCategoryId(null)
     } else {
       const newPath = breadcrumb.slice(0, index + 1)
       setBreadcrumb(newPath)
-      setCurrentCategory(newPath[newPath.length - 1])
+      setCurrentCategoryId(newPath[newPath.length - 1].id)
     }
     setSelectedIdea(null)
   }
@@ -64,11 +80,22 @@ export default function IdeasPage() {
       >
         <div className="p-6">
           {/* Breadcrumb */}
-          <Breadcrumb
-            items={breadcrumb}
-            onNavigate={navigateTo}
-            currentCategory={currentCategory}
-          />
+          <div className="flex items-center justify-between mb-6">
+            <Breadcrumb
+              items={breadcrumb}
+              onNavigate={navigateTo}
+              currentCategory={currentCategory}
+              className="mb-0"
+            />
+            {currentCategory && currentCategory.owner_id === currentUser?.id && (
+              <button
+                onClick={() => setShowShare(true)}
+                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 px-2 py-1 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                👤+ Share
+              </button>
+            )}
+          </div>
 
           {/* Subfolders — always show this section */}
           <section className="mb-8">
@@ -150,6 +177,14 @@ export default function IdeasPage() {
             setShowNewIdea(false)
             refetchIdeas()
           }}
+        />
+      )}
+
+      {showShare && currentCategory && (
+        <ShareCategoryModal
+          category={currentCategory}
+          onClose={() => setShowShare(false)}
+          onUpdated={refetchCats}
         />
       )}
     </div>

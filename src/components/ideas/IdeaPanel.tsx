@@ -6,6 +6,7 @@ import { deleteIdea, updateIdea } from '../../api/ideas'
 import { format } from 'date-fns'
 import { tagColor, DEFAULT_COLOR } from '../ui/tagColors'
 import { resolveAssetUrl } from '../../lib/assetUrl'
+import { useStore } from '../../store'
 import CommentThread from '../comments/CommentThread'
 import EditIdeaModal from './EditIdeaModal'
 
@@ -24,9 +25,11 @@ const STATUS_DOT: Record<string, string> = {
 
 export default function IdeaPanel({ idea, onClose, onUpdated, onDeleted }: Props) {
   const qc = useQueryClient()
+  const currentUser = useStore((s) => s.user)
   const [editing, setEditing] = useState(false)
   const firstTag = idea.tags[0]
   const color = firstTag ? tagColor(firstTag.name, firstTag.color) : DEFAULT_COLOR
+  const isOwnIdea = !idea.owner || idea.owner.id === currentUser?.id
 
   const { data: comments = [], refetch: refetchComments } = useQuery({
     queryKey: ['comments', idea.id],
@@ -91,9 +94,14 @@ export default function IdeaPanel({ idea, onClose, onUpdated, onDeleted }: Props
             </div>
           )}
 
-          <p className="text-xs text-gray-400">
-            {format(new Date(idea.created_at), 'MMM d, yyyy')}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-gray-400">
+              {format(new Date(idea.created_at), 'MMM d, yyyy')}
+            </p>
+            {!isOwnIdea && idea.owner && (
+              <span className="text-xs text-gray-400">· by @{idea.owner.username}</span>
+            )}
+          </div>
         </div>
 
         {/* Body */}

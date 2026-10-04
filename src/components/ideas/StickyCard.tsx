@@ -1,6 +1,7 @@
 import { Idea } from '../../types'
 import { tagColor, DEFAULT_COLOR } from '../ui/tagColors'
 import { resolveAssetUrl } from '../../lib/assetUrl'
+import { useStore } from '../../store'
 import { format } from 'date-fns'
 
 interface Props {
@@ -10,6 +11,8 @@ interface Props {
 }
 
 export default function StickyCard({ idea, selected, onClick }: Props) {
+  const currentUser = useStore((s) => s.user)
+  const isOwnIdea = !idea.owner || idea.owner.id === currentUser?.id
   const firstTag = idea.tags[0]
   const cardColor = firstTag
     ? tagColor(firstTag.name, firstTag.color)
@@ -65,10 +68,20 @@ export default function StickyCard({ idea, selected, onClick }: Props) {
           </div>
         )}
 
-        {/* Date */}
-        <span className="text-xs text-gray-400">
-          {format(new Date(idea.created_at), 'MMM d')}
-        </span>
+        {/* Date + author (shown when someone else created it in a shared folder) */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-gray-400">
+            {format(new Date(idea.created_at), 'MMM d')}
+          </span>
+          {!isOwnIdea && idea.owner && (
+            <span
+              className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center text-[9px] font-medium text-gray-600"
+              title={`By @${idea.owner.username}`}
+            >
+              {idea.owner.username.charAt(0).toUpperCase()}
+            </span>
+          )}
+        </div>
       </div>
     </button>
   )

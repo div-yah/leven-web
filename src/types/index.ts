@@ -16,6 +16,12 @@ export interface Tag {
   created_at: string | null
 }
 
+export interface PublicUser {
+  id: string
+  username: string
+  avatar_url: string | null
+}
+
 export interface Category {
   id: string
   name: string
@@ -29,6 +35,9 @@ export interface Category {
   updated_at: string | null
   children: Category[]
   idea_count: number
+  owner: PublicUser | null
+  is_shared: boolean
+  shared_with: PublicUser[]
 }
 
 export type IdeaStatus = 'draft' | 'active' | 'archived'
@@ -48,6 +57,7 @@ export interface Idea {
   created_at: string
   updated_at: string | null
   comment_count: number
+  owner: PublicUser | null
 }
 
 export interface Comment {
@@ -72,7 +82,7 @@ export interface Share {
   category_id: string | null
   shared_by_id: string
   shared_with_id: string
-  shared_with: User
+  shared_with: PublicUser
   created_at: string
 }
 

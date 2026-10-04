@@ -4,11 +4,12 @@ interface Props {
   items: Category[]
   currentCategory: Category | null
   onNavigate: (index: number) => void
+  className?: string
 }
 
-export default function Breadcrumb({ items, onNavigate }: Props) {
+export default function Breadcrumb({ items, onNavigate, className = 'mb-6' }: Props) {
   return (
-    <div className="flex items-center gap-1 mb-6 text-sm">
+    <div className={`flex items-center gap-1 text-sm ${className}`}>
       <button
         onClick={() => onNavigate(-1)}
         className="text-gray-500 hover:text-gray-900 transition-colors font-medium"
